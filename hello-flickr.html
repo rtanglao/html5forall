@@ -35,20 +35,20 @@ function hello_flickr() {
              // get the "sq" url which is 75x75 photo, sq is documented at:http://www.flickr.com/services/api/flickr.photos.getSizes.html
             "&extras=url_sq"+
             "&sort=date-posted-desc&jsoncallback=?", // reverse chrono sorted photos, call the next function with the photo meta data
-    function(photoMetaData) { //photoMetaData is the JSON photo metadata from flickr
-      if (parseInt(photoMetaData.photos.total) == 0) {
-        console.log("No Northern Voice geotagged photos! status:"+photoMetaData.stat);
-      }
-      else {
-        // flickr will return metadata for up to 100 photos but we are going to display the first photo and ignore the 99 other photos
-        flickr_photo_sq_url = photoMetaData.photos.photo[0].url_sq
-        var flickr_image = new Image();
-        flickr_image.src =flickr_photo_sq_url;
-        flickr_image.onload = function() {
-          context.drawImage(flickr_image,0,0);
-        };
-      }
-    });
+  function(photoMetaData) { //photoMetaData is the JSON photo metadata from flickr
+    if (parseInt(photoMetaData.photos.total) == 0) {
+      console.log("No Northern Voice geotagged photos! status:"+photoMetaData.stat)
+    }
+    else {
+      // flickr will return metadata for up to 100 photos but we are going to display the first photo and ignore the 99 other photos
+      flickr_photo_sq_url = photoMetaData.photos.photo[0].url_sq
+      var flickr_image = new Image();
+      flickr_image.src =flickr_photo_sq_url;
+      flickr_image.onload = function() {
+        context.drawImage(flickr_image,0,0);
+      };
+    }
+  });
 }
 
 hello_flickr();
