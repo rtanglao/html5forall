@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hello, Flickr, Dodging Buses music by Derek Miller penmachine.com!</title>
+</head>
+<body>
+<audio autoplay="autoplay">
+<source src="music/penmachine-dodgingbuses.webm">
+<source src="music/penmachine-dodgingbuses.mp3">
+</audio>
+<canvas id="myDrawing" width="640" height="525">
+			<p>Your browser doesn't support canvas.</p>
+		</canvas>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script type="text/javascript">//<![CDATA[
+(function($){
+  $.ajaxSetup({
+    cache: false // turn off AJAX caching
+  });
+if (typeof console === 'undefined' || !console.log) {
+  var console = { log: function () {}};
+};
+
+// get your own flickr API key at:
+// http://www.flickr.com/services/apps/create/apply, don't use mine :-)
+var flickr_apiKey = 'a3b9e1fec66dfb1797c7414dfbb81974'; // needed so flickr can shut you down if you are naughty :-)
+
+var drawingCanvas = document.getElementById('myDrawing');
+var context = drawingCanvas.getContext('2d');
+
+var flickr_image_urls = new Array();
+
+function display_flickr_images(index) {
+  console.log("index:"+index);
+  console.log("url:"+flickr_image_urls[index]);
+  var flickr_image = new Image();
+  flickr_image.src = flickr_image_urls[index];
+  flickr_image.onload = function() {
+    var display_index = index % 56;
+    context.drawImage(flickr_image,(display_index * 75) % 600, (Math.floor((display_index * 75) / 600)) * 75);
+  };
+  if (index < 99) {
+   setTimeout(function () {display_flickr_images(++index);}, 500)
+  }
+}
+function hello_flickr() {
+  // flickr.photos.search docs: http://www.flickr.com/services/api/flickr.photos.search.html
+  // flickr.photos.search retrieves the photo metadata NOT the photo itself
+  $.getJSON("http://api.flickr.com//services/rest/?method=flickr.photos.search"+
+            "&api_key="+flickr_apiKey+
+            "&tags=northernvoice"+
+            "&format=json"+ // use JSON instead of XML because it's easy for javascript to deal with
+            "&content_type=1"+ // content type of 1 means photos only and no videos
+             // get the "sq" url which is 75x75 photo, sq is documented at:http://www.flickr.com/services/api/flickr.photos.getSizes.html
+            "&extras=url_sq"+
+            "&sort=date-posted-desc&jsoncallback=?", // reverse chrono sorted photos, call the next function with the photo meta data
+  function(photoMetaData) { //photoMetaData is the JSON photo metadata from flickr
+    if (parseInt(photoMetaData.photos.total) == 0) {
+      console.log("No Northern Voice geotagged photos! status:"+photoMetaData.stat)
+    }
+    else {
+      // flickr will return metadata for up to 100 photos 
+      $.each(photoMetaData.photos.photo,function(i,photo) {
+        flickr_image_urls[i] = photoMetaData.photos.photo[i].url_sq
+      });
+   }
+  });
+}
+
+hello_flickr();
+setTimeout(function () {display_flickr_images(0);},2000)
+
+
+})(jQuery);
+//]]></script>
+
+</body>
+</html>
